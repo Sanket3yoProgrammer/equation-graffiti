@@ -2,7 +2,7 @@
 
 > **Bringing Equations to Life - Plot, Save, Share & Explore!**  
 
-EquationGraffiti is an advanced mathematical visualization tool that allows users to **see equations come to life in real-time graphs**. With features like **equation saving, replotting, downloading, and sharing**, this tool is perfect for students, educators, and math enthusiasts!  
+Yo, EquationGraffiti is an advanced mathematical visualization tool that allows users to **see equations come to life in real-time graphs**. With features like **equation saving, replotting, downloading, and sharing**, this tool is perfect for students, educators, and math enthusiasts!  
 
 ---
 
@@ -54,9 +54,12 @@ Want to contribute, discuss improvements, or work on something awesome together?
 
 📩 **Email:** [sanketkumarpadhan95@gmail.com](mailto:sanketkumarpadhan95@gmail.com)  
 
-<p align="center">
+<p align="left">
   <a href="mailto:sanketkumarpadhan95@gmail.com"><img src="https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white"></a>
-  <a href="https://github.com/yourgithub"><img src="https://img.shields.io/badge/GitHub-171515?style=for-the-badge&logo=github&logoColor=white"></a>
+  <a href="https://github.com/Sanket3yoprogrammer"><img src="https://img.shields.io/badge/GitHub-171515?style=for-the-badge&logo=github&logoColor=white"></a>
+  <a href="http://codepen.io/Sanket-Kumar-Padhan-the-bold/"><img src="https://img.shields.io/badge/CodePen-000000?style=for-the-badge&logo=codepen&logoColor=white"></a>
+  <a href="https://www.chess.com/member/Sanket_y07"><img src="https://img.shields.io/badge/Chess.com-769656?style=for-the-badge&logo=chess.com&logoColor=white"></a>
+  <a href="https://sanketme-projects.vercel.app/"><img src="https://img.shields.io/badge/Portfolio-FF5733?style=for-the-badge&logo=react&logoColor=white"></a>
 </p>
 
 ---
