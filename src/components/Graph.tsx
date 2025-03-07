@@ -200,7 +200,7 @@ const Graph: React.FC<GraphProps> = ({ lines, intersections, className }) => {
     toast({
       title: "Equations Saved!",
       description: "Your equations have been successfully stored.",
-      duration: 100,
+      duration: 4s,
       className: "bg-green-600 text-white border-0 shadow-lg",
       // icon: <CheckCircle className="text-white" />,
     });
