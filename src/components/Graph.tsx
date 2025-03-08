@@ -508,7 +508,7 @@ const toggleFullscreen = () => {
         </Button>
         <Button 
           onClick={toggleFullscreen} 
-          className="absolute top-2 size-30 right-2 bg-blue-500 text-white p-2 rounded-md shadow-md hover:bg-gray-700/40"
+          className="absolute top-1 size-30 right-1 bg-blue-500 text-white p-2 rounded-md shadow-md hover:bg-gray-700/40"
         >
           {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
         </Button>
