@@ -338,7 +338,7 @@ const toggleFullscreen = () => {
       ? `Intersection Points:\n${intersectionPoints.map(pt => `(${pt.x.toFixed(2)}, ${pt.y.toFixed(2)})`).join('\n')}`
       : "No intersection points.";
   
-    const shareText = `${equationsText}\n\n${intersectionsText}\n\nThis Graph is generated using Sanket3yoprogrammer's tool EquationGraffiti! Check out the cool app: http://equation-graffiti.vercel.app`;
+    const shareText = `${equationsText}\n\n${intersectionsText}\n\nThis Graph is generated using Sanket3yoprogrammer's tool EquationGraffiti! Check out the cool app:\n https://equation-graffiti.vercel.app`;
 
 
     if (navigator.share) {
@@ -349,9 +349,9 @@ const toggleFullscreen = () => {
             navigator.clipboard.writeText(shareText);
             
             await navigator.share({
-              files: [file],
               title: "Graph Image",
               text: shareText,
+              files: [file],
             });
 
         } catch (error) {
