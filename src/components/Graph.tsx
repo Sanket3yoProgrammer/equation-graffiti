@@ -7,8 +7,7 @@ import { LineData, DEFAULT_RANGE } from '@/utils/mathUtils';
 import { motion, AnimatePresence } from 'framer-motion';
 import debounce from 'lodash/debounce';
 import { FaSave, FaCheckCircle  } from 'react-icons/fa';
-// import { toast } from 'react-hot-toast';
-
+// import { toast } from 'react-hot-toast
 
 import { openDB } from "idb"; 
 import { toast, useToast } from './ui/use-toast';
@@ -37,7 +36,7 @@ const Graph: React.FC<GraphProps> = ({ lines, intersections, className }) => {
   const [clicked, setClicked] = useState(false);
   const [animateKey, setAnimateKey] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
-
+  const [shake, setShake] = useState(false);
 const graphContainerRef = useRef<HTMLDivElement>(null);
 
 const toggleFullscreen = () => {
@@ -211,9 +210,9 @@ const toggleFullscreen = () => {
     const allEquations = await db.getAll("equations");
     setSavedEquations(allEquations);
     toast({
-      title: "Equations Saved!",
+      title: "✓ Equations Saved!",
       description: "Your equations have been successfully stored.",
-      duration: 100,
+      duration: 4000,
       className: "bg-green-600 text-white border-0 shadow-lg",
       // icon: <CheckCircle className="text-white" />,
     });
@@ -303,9 +302,30 @@ const toggleFullscreen = () => {
     return canvas.toDataURL("image/png");
   };
   
-  const ShareGraph = async (equations, intersectionPoints) => {
-    // First, toggle fullscreen before proceeding
-    toggleFullscreen();
+
+
+
+
+
+
+
+
+  const ShareGraph = async (equations: string[], intersectionPoints: { x: number, y: number }[], setShake) => {
+    // Prevent sharing if not in fullscreen
+    if (!document.fullscreenElement) {
+        setShake(true); // Trigger shake effect
+
+        toast({
+            title: "⚠ Fullscreen Required!",
+            description: "You need to go fullscreen to share the graph.",
+            variant: "default",
+            duration: 3000, // 3 seconds
+            className: "bg-yellow-400 text-black font-bold", // Yellow background, black text
+        });
+
+        setTimeout(() => setShake(false), 1000); // Reset shake after 1s
+        return;
+    }
 
     const imgURL = await captureGraph();
     if (!imgURL) return;
@@ -328,12 +348,12 @@ This Graph is generated using Sanket3yoprogrammer's tool EquationGraffiti! Check
             const file = new File([blob], "graph.png", { type: "image/png" });
 
             const shareData = {
-                title: 'Graph Image',
+                title: "Graph Image",
                 text: shareText,
                 url: " Graph Image\n ${shareText}\n https://equation-graffiti.vercel.app",
-                files: [file]
+                files: [file],
             };
-
+            navigator.clipboard.writeText(shareText);
             await navigator.share(shareData);
         } catch (error) {
             console.error("Sharing failed", error);
@@ -348,7 +368,6 @@ This Graph is generated using Sanket3yoprogrammer's tool EquationGraffiti! Check
         link.click();
     }
 };
-
   
   const saveGraph = async () => {
     const imgURL = await captureGraph();
@@ -377,7 +396,7 @@ This Graph is generated using Sanket3yoprogrammer's tool EquationGraffiti! Check
   //     ? `Intersection Points:\n${intersectionPoints.map(pt => `(${pt.x.toFixed(2)}, ${pt.y.toFixed(2)})`).join('\n')}`
   //     : "No intersection points.";
   
-  //   const shareText = `${equationsText}\n\n${intersectionsText}\n\nThis Graph is generated using Sanket3yoprogrammer's tool EquationGraffiti! Check out the cool app: http://equation-graffiti.vercel.app`;
+  //   const shareText = `${equationsText}\n\n${intersectionsText}\n\nThis Graph is generated using Sanket3yoprogrammer's tool EquationGraffiti! Check out the cool app: https://equation-graffiti.vercel.app`;
   
   //   // Check if Web Share API is supported
   //   if (navigator.share) {
@@ -463,20 +482,27 @@ This Graph is generated using Sanket3yoprogrammer's tool EquationGraffiti! Check
             <span className="sr-only">Save equations</span>
           </Button> */}
 
-            <motion.div whileTap={{ scale: 0.9, y: 2 }}>
+            
+
+
+    
+
+        
             <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => ShareGraph(
-                lines.map(line => line.equation), 
-                intersections
-              )}
-              className="h-8 w-8"
-            >
-              <Share2 className="h-4 w-4" />
-              <span className="sr-only">Share Graph</span>
-            </Button>
-          </motion.div>
+                variant="ghost"
+                size="icon"
+                onClick={() => ShareGraph( equations, intersections, setShake)}
+                className="h-8 w-8"
+            ><motion.div
+            whileTap={{ scale: 0.9, y: 2 }}
+            animate={shake ? { x: [-5, 5, -5, 5, 0], color: "#FFD700" } : {}}
+            transition={{ duration: 0.5 }}
+        >
+                <Share2 className="h-4 w-4" />
+                <span className="sr-only">Share Graph</span>
+                </motion.div>
+                 </Button>
+        
 
           <motion.div whileTap={{ scale: 0.9, y: 2 }}>
             <Button
