@@ -443,7 +443,7 @@ const toggleFullscreen = () => {
 
   return (
     <div className={cn("w-full h-full flex flex-col space-y-4 relative bg-background", className)}  id="graph-container" ref={graphContainerRef} >
-      <div>
+      
       <div className="flex items-center justify-center">
         <div className="text-sm font-medium">Graph</div> </div>
         <div className="flex items-center justify-center">
@@ -567,7 +567,7 @@ const toggleFullscreen = () => {
           
               </div>
         </div>
-        </div>
+        
       
 
       <motion.div
