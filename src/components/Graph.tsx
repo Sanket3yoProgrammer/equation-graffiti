@@ -303,51 +303,47 @@ const toggleFullscreen = () => {
     return canvas.toDataURL("image/png");
   };
   
-  const ShareGraph = async (equations: string[], intersectionPoints: { x: number; y: number }[]) => {
-    try {
-        const imgURL = await captureGraph();
-        if (!imgURL) return;
-        
-        const shareText = `
-Equations:\n${equations.join("\n") || "No equations provided."}
+  const ShareGraph = async (equations, intersectionPoints) => {
+    // First, toggle fullscreen before proceeding
+    toggleFullscreen();
+
+    const imgURL = await captureGraph();
+    if (!imgURL) return;
+
+    const shareText = `
+Equations:\n${equations.length ? equations.join("\n") : "No equations provided."}
 
 Intersection Points:\n${
-            intersectionPoints.length
-                ? intersectionPoints.map(pt => `(${pt.x.toFixed(2)}, ${pt.y.toFixed(2)})`).join("\n")
-                : "No intersection points."
-        }
+        intersectionPoints.length
+            ? intersectionPoints.map(pt => `(${pt.x.toFixed(2)}, ${pt.y.toFixed(2)})`).join("\n")
+            : "No intersection points."
+    }
 
-This Graph is generated using Sanket3yoprogrammer's tool EquationGraffiti! Check it out: http://equation-graffiti.vercel.app
+This Graph is generated using Sanket3yoprogrammer's tool EquationGraffiti! Check it out: https://equation-graffiti.vercel.app
 `;
 
-        const shareData: ShareData = {
-            title: "Graph Image",
-            text: shareText,
-            url: "https://equation-graffiti.vercel.app",
-        };
-
-        if (navigator.canShare) {
-            const response = await fetch(imgURL);
-            const blob = await response.blob();
+    if (navigator.share) {
+        try {
+            const blob = await (await fetch(imgURL)).blob();
             const file = new File([blob], "graph.png", { type: "image/png" });
 
-            if (navigator.canShare({ files: [file] })) {
-                shareData.files = [file];
-            }
-        }
+            const shareData = {
+                title: 'Graph Image',
+                text: shareText,
+                url: "https://equation-graffiti.vercel.app",
+                files: [file]
+            };
 
-        await navigator.share(shareData);
-        navigator.clipboard.writeText(shareText);
-        console.log("Web Share function() Activated");
-    } catch (error) {
-        console.error("Sharing failed", error);
-        
-        // Fallback: Copy text & Download image
+            await navigator.share(shareData);
+        } catch (error) {
+            console.error("Sharing failed", error);
+        }
+    } else {
         navigator.clipboard.writeText(shareText);
         alert("Sharing is not supported. The image has been downloaded instead.");
 
         const link = document.createElement("a");
-        link.href = await captureGraph();
+        link.href = imgURL;
         link.download = "graph.png";
         link.click();
     }
