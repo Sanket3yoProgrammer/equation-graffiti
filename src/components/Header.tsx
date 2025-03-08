@@ -151,9 +151,9 @@ const Header = ({ className }: HeaderProps) => {
                     <Link
                       to={item.href}
                       className={cn(
-                        "block py-3 text-sm transition-colors relative",
+                        "block py-4 text-sm transition-colors relative",
                         item.href === '/app'
-                          ? "my-2 px-4 py-2 rounded-full bg-primary hover:bg-primary/90 [&>*]:text-white dark:[&>*]:text-gray-800 inline-flex items-center gap-3 justify-center w-full"
+                          ? "my-2 px-4 py-2 rounded-full bg-primary hover:bg-primary/90 text-white [&>*]:text-white dark:[&>*]:text-gray-800 dark:text-gray-800 inline-flex items-center gap-3 justify-center w-full"
                           : "hover:text-primary flex items-center gap-3",
                         location.pathname === item.href && item.href !== '/app'
                           ? "text-primary"
