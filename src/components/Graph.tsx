@@ -443,6 +443,7 @@ const toggleFullscreen = () => {
 
   return (
     <div className={cn("w-full h-full flex flex-col space-y-4 relative bg-background", className)}  id="graph-container" ref={graphContainerRef} >
+      <div>
       <div className="flex items-center justify-center">
         <div className="text-sm font-medium">Graph</div> </div>
         <div className="flex items-center justify-center">
@@ -566,11 +567,12 @@ const toggleFullscreen = () => {
           
               </div>
         </div>
+        </div>
       
 
       <motion.div
         ref={graphRef}
-        className="flex-1 relative w-full h-full min-h-[300px] bg-card rounded-xl border overflow-hidden shadow-sm transition-all"
+        className="flex-1 relative w-full h-3/5 min-h-[300px] bg-card rounded-xl border overflow-hidden shadow-sm transition-all"
         style={{ 
           cursor: isPanning ? (panStart ? 'grabbing' : 'grab') : 'default',
           touchAction: isPanning ? 'none' : 'auto',
