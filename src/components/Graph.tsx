@@ -330,7 +330,7 @@ This Graph is generated using Sanket3yoprogrammer's tool EquationGraffiti! Check
             const shareData = {
                 title: 'Graph Image',
                 text: shareText,
-                url: "https://equation-graffiti.vercel.app",
+                url: " Graph Image\n ${shareText}\n https://equation-graffiti.vercel.app",
                 files: [file]
             };
 
