@@ -330,31 +330,30 @@ const toggleFullscreen = () => {
     const imgURL = await captureGraph();
     if (!imgURL) return;
 
-    const shareText = `
-Equations:\n${equations.length ? equations.join("\n") : "No equations provided."}
+    // Generate equations text
+    const equationsText = equations.length > 0 ? `Equations:\n${equations.join('\n')}` : "No equations provided.";
+    
+    // Generate intersection points text
+    const intersectionsText = intersectionPoints.length > 0 
+      ? `Intersection Points:\n${intersectionPoints.map(pt => `(${pt.x.toFixed(2)}, ${pt.y.toFixed(2)})`).join('\n')}`
+      : "No intersection points.";
+  
+    const shareText = `${equationsText}\n\n${intersectionsText}\n\nThis Graph is generated using Sanket3yoprogrammer's tool EquationGraffiti! Check out the cool app: http://equation-graffiti.vercel.app`;
 
-Intersection Points:\n${
-        intersectionPoints.length
-            ? intersectionPoints.map(pt => `(${pt.x.toFixed(2)}, ${pt.y.toFixed(2)})`).join("\n")
-            : "No intersection points."
-    }
-
-This Graph is generated using Sanket3yoprogrammer's tool EquationGraffiti!
-`;
 
     if (navigator.share) {
         try {
             const blob = await (await fetch(imgURL)).blob();
             const file = new File([blob], "graph.png", { type: "image/png" });
-
-            const shareData = {
-              title: "Graph Image",
-              text: `${shareText}\n\nCheck it out: https://equation-graffiti.vercel.app`,
-              files: [file],
-          };
           
             navigator.clipboard.writeText(shareText);
-            await navigator.share(shareData);
+            
+            await navigator.share({
+              files: [file],
+              title: "Graph Image",
+              text: shareText,
+            });
+
         } catch (error) {
             console.error("Sharing failed", error);
         }
@@ -491,7 +490,8 @@ This Graph is generated using Sanket3yoprogrammer's tool EquationGraffiti!
             <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => ShareGraph( equations, intersections, setShake)}
+                onClick={() => ShareGraph( lines.map(line => line.equation), 
+                  intersections, setShake)}
                 className="h-8 w-8"
             ><motion.div
             whileTap={{ scale: 0.9, y: 2 }}
@@ -501,7 +501,7 @@ This Graph is generated using Sanket3yoprogrammer's tool EquationGraffiti!
                 <Share2 className="h-4 w-4" />
                 <span className="sr-only">Share Graph</span>
                 </motion.div>
-                 </Button>
+            </Button>
         
 
           <motion.div whileTap={{ scale: 0.9, y: 2 }}>
