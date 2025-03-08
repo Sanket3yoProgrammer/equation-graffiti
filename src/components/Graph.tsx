@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceDot, ResponsiveContainer } from 'recharts';
-import { ZoomIn, ZoomOut, RotateCcw, Move, Image, Save, CheckCircle, Share2, Download } from 'lucide-react';
+import { ZoomIn, ZoomOut, RotateCcw, Move, Image, Save, CheckCircle, Share2, Download, Minimize, Maximize } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { LineData, DEFAULT_RANGE } from '@/utils/mathUtils';
@@ -36,6 +36,19 @@ const Graph: React.FC<GraphProps> = ({ lines, intersections, className }) => {
   const roundToTwo = (num: number) => Math.round(num * 100) / 100;
   const [clicked, setClicked] = useState(false);
   const [animateKey, setAnimateKey] = useState(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+const graphContainerRef = useRef<HTMLDivElement>(null);
+
+const toggleFullscreen = () => {
+  if (!document.fullscreenElement) {
+    graphContainerRef.current?.requestFullscreen();
+    setIsFullscreen(true);
+  } else {
+    document.exitFullscreen();
+    setIsFullscreen(false);
+  }
+};
 
   useEffect(() => {
     const animate = () => {
@@ -200,7 +213,7 @@ const Graph: React.FC<GraphProps> = ({ lines, intersections, className }) => {
     toast({
       title: "Equations Saved!",
       description: "Your equations have been successfully stored.",
-      duration: 4000,
+      duration: 100,
       className: "bg-green-600 text-white border-0 shadow-lg",
       // icon: <CheckCircle className="text-white" />,
     });
@@ -256,58 +269,160 @@ const Graph: React.FC<GraphProps> = ({ lines, intersections, className }) => {
 
 
 
+  
 
-  const ShareGraph = async (equations: string[], intersectionPoints: { x: number, y: number }[]) => {
-    const element = document.getElementById('graph-container');
-    if (!element) return;
+  const captureGraph = async () => {
+    const element = document.getElementById("graph-container");
+    if (!element) return null;
   
-    const canvas = await html2canvas(element);
-    const imgURL = canvas.toDataURL("image/png");
+    // Ensure element is fully resized in fullscreen before capturing
+    await new Promise((resolve) => requestAnimationFrame(resolve));
   
-    // Generate equations text
-    const equationsText = equations.length > 0 ? `Equations:\n${equations.join('\n')}` : "No equations provided.";
-    
-    // Generate intersection points text
-    const intersectionsText = intersectionPoints.length > 0 
-      ? `Intersection Points:\n${intersectionPoints.map(pt => `(${pt.x.toFixed(2)}, ${pt.y.toFixed(2)})`).join('\n')}`
-      : "No intersection points.";
+    // If in fullscreen, temporarily adjust styles
+    const isFullscreen = !!document.fullscreenElement;
+    if (isFullscreen) {
+      element.style.width = "100vw";
+      element.style.height = "100vh";
+    }
   
-    const shareText = `${equationsText}\n\n${intersectionsText}\n\nThis Graph is generated using Sanket3yoprogrammer's tool EquationGraffiti! Check out the cool app: http://equation-graffiti.vercel.app`;
+    // Capture with correct dimensions
+    const canvas = await html2canvas(element, {
+      useCORS: true, // Ensure external resources load
+      backgroundColor: null, // Keeps transparency (optional)
+      windowWidth: isFullscreen ? window.screen.width : element.scrollWidth,
+      windowHeight: isFullscreen ? window.screen.height : element.scrollHeight,
+      scale: 2, // Higher resolution capture
+    });
   
-    // Check if Web Share API is supported
+    // Reset styles after capture
+    if (isFullscreen) {
+      element.style.width = "";
+      element.style.height = "";
+    }
+  
+    return canvas.toDataURL("image/png");
+  };
+  
+  const ShareGraph = async (equations, intersectionPoints) => {
+    const imgURL = await captureGraph();
+    if (!imgURL) return;
+  
+    const shareText = `
+  Equations:\n${equations.join("\n") || "No equations provided."}
+  
+  Intersection Points:\n${
+      intersectionPoints.length
+        ? intersectionPoints.map(pt => `(${pt.x.toFixed(2)}, ${pt.y.toFixed(2)})`).join("\n")
+        : "No intersection points."
+    }
+  
+  This Graph is generated using Sanket3yoprogrammer's tool EquationGraffiti! Check it out: http://equation-graffiti.vercel.app
+  `;
+  
     if (navigator.share) {
       try {
         const blob = await (await fetch(imgURL)).blob();
         const file = new File([blob], "graph.png", { type: "image/png" });
   
+        navigator.clipboard.writeText(shareText);
         await navigator.share({
           files: [file],
           title: "Graph Image",
           text: shareText,
+          url: "https://equation-graffiti.vercel.app",
         });
       } catch (error) {
         console.error("Sharing failed", error);
       }
     } else {
       navigator.clipboard.writeText(shareText);
-      alert("Sharing is not supported on this device. Image has been downloaded instead.");
+      alert("Sharing is not supported. The image has been downloaded instead.");
+  
+      const link = document.createElement("a");
+      link.href = imgURL;
+      link.download = "graph.png";
+      link.click();
     }
   };
-
-  const saveGraph = async (equations: string[], intersectionPoints: { x: number, y: number }[]) => {
-    const element = document.getElementById('graph-container');
-    if (!element) return;
   
-    const canvas = await html2canvas(element);
-    const imgURL = canvas.toDataURL("image/png");
-
-    // Create a temporary link for downloading
+  const saveGraph = async () => {
+    const imgURL = await captureGraph();
+    if (!imgURL) return;
+  
     const link = document.createElement("a");
     link.href = imgURL;
     link.download = "graph.png";
     link.click();
-
   };
+  
+  
+
+  // const ShareGraph = async (equations: string[], intersectionPoints: { x: number, y: number }[]) => {
+  //   const element = document.getElementById('graph-container');
+  //   if (!element) return;
+  
+  //   const canvas = await html2canvas(element);
+  //   const imgURL = canvas.toDataURL("image/png");
+  
+  //   // Generate equations text
+  //   const equationsText = equations.length > 0 ? `Equations:\n${equations.join('\n')}` : "No equations provided.";
+    
+  //   // Generate intersection points text
+  //   const intersectionsText = intersectionPoints.length > 0 
+  //     ? `Intersection Points:\n${intersectionPoints.map(pt => `(${pt.x.toFixed(2)}, ${pt.y.toFixed(2)})`).join('\n')}`
+  //     : "No intersection points.";
+  
+  //   const shareText = `${equationsText}\n\n${intersectionsText}\n\nThis Graph is generated using Sanket3yoprogrammer's tool EquationGraffiti! Check out the cool app: http://equation-graffiti.vercel.app`;
+  
+  //   // Check if Web Share API is supported
+  //   if (navigator.share) {
+  //     try {
+  //       const blob = await (await fetch(imgURL)).blob();
+  //       const file = new File([blob], "graph.png", { type: "image/png" });
+  //       const equationsText = equations.length > 0 ? `Equations:\n${equations.join('\n')}` : "No equations provided.";
+    
+  //       // Generate intersection points text
+  //       const intersectionsText = intersectionPoints.length > 0 
+  //         ? `Intersection Points:\n${intersectionPoints.map(pt => `(${pt.x.toFixed(2)}, ${pt.y.toFixed(2)})`).join('\n')}`
+  //         : "No intersection points.";
+      
+  //       const shareText = `${equationsText}\n\n${intersectionsText}\n\nThis Graph is generated using Sanket3yoprogrammer's tool EquationGraffiti! Check out the cool app: http://equation-graffiti.vercel.app`;
+      
+  //       navigator.clipboard.writeText(shareText);
+  //       await navigator.share({
+  //         files: [file],
+  //         title: "Graph Image",
+  //         text: shareText,
+  //         url: "https://equation-graffiti.vercel.app",
+  //       });
+  //     } catch (error) {
+  //       console.error("Sharing failed", error);
+  //     }
+  //   } else {
+  //     navigator.clipboard.writeText(shareText);
+  //     alert("Sharing is not supported on this device. Image has been downloaded instead.");
+  //     // Create a temporary link for downloading
+  //     const link = document.createElement("a");
+  //     link.href = imgURL;
+  //     link.download = "graph.png";
+  //     link.click();
+  //   }
+  // };
+
+  // const saveGraph = async (equations: string[], intersectionPoints: { x: number, y: number }[]) => {
+  //   const element = document.getElementById('graph-container');
+  //   if (!element) return;
+  
+  //   const canvas = await html2canvas(element);
+  //   const imgURL = canvas.toDataURL("image/png");
+
+  //   // Create a temporary link for downloading
+  //   const link = document.createElement("a");
+  //   link.href = imgURL;
+  //   link.download = "graph.png";
+  //   link.click();
+
+  // };
 
 
   useEffect(() => {
@@ -327,10 +442,11 @@ const Graph: React.FC<GraphProps> = ({ lines, intersections, className }) => {
   }, [isPanning]);
 
   return (
-    <div className={cn("w-full h-full flex flex-col space-y-4 relative", className)}>
-      <div className="flex items-center justify-between">
-        <div className="text-sm font-medium">Graph</div>
-        <div className="flex items-center space-x-2">
+    <div className={cn("w-full h-full flex flex-col space-y-4 relative bg-background", className)}  id="graph-container" ref={graphContainerRef} >
+      <div className="flex items-center justify-center">
+        <div className="text-sm font-medium">Graph</div> </div>
+        <div className="flex items-center justify-center">
+        <div className="flex items-center space-x-2 rounded-xl bg-gray-600/10 p-4 pt-1 pb-1">
         {/* <Button
             variant="ghost"
             size="icon"
@@ -360,10 +476,7 @@ const Graph: React.FC<GraphProps> = ({ lines, intersections, className }) => {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => saveGraph(
-                lines.map(line => line.equation), 
-                intersections
-              )}
+              onClick={saveGraph}
               className="h-8 w-8"
             >
               <Download className="h-4 w-4" />
@@ -391,6 +504,12 @@ const Graph: React.FC<GraphProps> = ({ lines, intersections, className }) => {
             )}
           </motion.div>
           <span className="sr-only">Save equations</span>
+        </Button>
+        <Button 
+          onClick={toggleFullscreen} 
+          className="absolute top-2 size-30 right-2 bg-blue-500 text-white p-2 rounded-md shadow-md hover:bg-gray-700/40"
+        >
+          {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
         </Button>
 
           <Button
@@ -445,9 +564,9 @@ const Graph: React.FC<GraphProps> = ({ lines, intersections, className }) => {
               </motion.div>
               </Button>
           
-
+              </div>
         </div>
-      </div>
+      
 
       <motion.div
         ref={graphRef}
@@ -482,7 +601,7 @@ const Graph: React.FC<GraphProps> = ({ lines, intersections, className }) => {
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
-        <ResponsiveContainer width="100%" height="100%" className="animate-fade-in" id="graph-container">
+        <ResponsiveContainer width="100%" height="100%" className="animate-fade-in">
           <LineChart
             data={[...Array(200)].map((_, i) => {
               const x = roundToTwo(animatedRange.min + (i * (animatedRange.max - animatedRange.min)) / 199);
