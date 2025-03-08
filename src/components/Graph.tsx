@@ -328,7 +328,7 @@ const toggleFullscreen = () => {
         await navigator.share({
           files: [file],
           title: "Graph Image",
-          text: shareText,
+          text: `Graph Image\n${shareText}\n\nCheck it out: https://equation-graffiti.vercel.app`,
           url: "https://equation-graffiti.vercel.app",
         });
       } catch (error) {
